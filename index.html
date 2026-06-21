@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GymBRO — Real-Time Posture Correction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0E0E10;
+    --bg-soft:#161618;
+    --line:#26262A;
+    --text:#EDECE8;
+    --text-dim:#8A8A90;
+    --accent:#C8FF4D;
+    --accent-dim:#7E9E33;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+
+  /* NAV */
+  nav{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:28px 0;
+  }
+  .logo{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:18px;
+    letter-spacing:-0.02em;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .logo-dot{
+    width:8px;height:8px;border-radius:50%;
+    background:var(--accent);
+    box-shadow:0 0 12px var(--accent);
+  }
+  .gh-link{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--text-dim);
+    text-decoration:none;
+    border:1px solid var(--line);
+    padding:7px 14px;
+    border-radius:100px;
+    transition:border-color .2s, color .2s;
+  }
+  .gh-link:hover{ border-color:var(--accent); color:var(--accent); }
+
+  /* HERO */
+  .hero{
+    padding:48px 0 40px;
+    text-align:center;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--accent);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:24px;
+    opacity:0;
+    animation:fadeUp .6s ease forwards;
+  }
+  h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:clamp(40px,9vw,64px);
+    line-height:0.98;
+    letter-spacing:-0.03em;
+    margin-bottom:18px;
+    opacity:0;
+    animation:fadeUp .6s ease .08s forwards;
+  }
+  h1 span{ color:var(--accent); }
+  .sub{
+    font-size:16px;
+    color:var(--text-dim);
+    max-width:440px;
+    margin:0 auto 36px;
+    line-height:1.55;
+    opacity:0;
+    animation:fadeUp .6s ease .16s forwards;
+  }
+
+  /* SKELETON SVG */
+  .pose-stage{
+    width:100%;
+    max-width:320px;
+    margin:0 auto 36px;
+    opacity:0;
+    animation:fadeUp .7s ease .22s forwards;
+  }
+  .pose-stage svg{ width:100%; height:auto; display:block; }
+  .joint{ fill:var(--accent); }
+  .bone{ stroke:var(--text-dim); stroke-width:2.5; stroke-linecap:round; fill:none; }
+  .angle-arc{ stroke:var(--accent); stroke-width:2; fill:none; opacity:0.7; }
+  .angle-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    fill:var(--accent);
+  }
+  @keyframes pulse{
+    0%,100%{ r:4; opacity:1; }
+    50%{ r:5.5; opacity:0.7; }
+  }
+  .joint{ animation:pulse 2.2s ease-in-out infinite; }
+  .j2{ animation-delay:.2s; }
+  .j3{ animation-delay:.4s; }
+  .j4{ animation-delay:.6s; }
+  .j5{ animation-delay:.8s; }
+
+  /* DOWNLOAD BUTTON */
+  .download-block{
+    opacity:0;
+    animation:fadeUp .6s ease .3s forwards;
+  }
+  .btn-download{
+    display:inline-flex;
+    align-items:center;
+    gap:12px;
+    background:var(--accent);
+    color:#0E0E10;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:17px;
+    padding:18px 32px;
+    border-radius:14px;
+    text-decoration:none;
+    transition:transform .15s ease, box-shadow .15s ease;
+    box-shadow:0 0 0 0 rgba(200,255,77,0);
+  }
+  .btn-download:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 24px -4px rgba(200,255,77,0.35);
+  }
+  .btn-download:active{ transform:translateY(0px); }
+  .btn-download svg{ width:20px; height:20px; }
+  .meta-row{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    margin-top:16px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  .meta-row span{ display:flex; align-items:center; gap:6px; }
+  .meta-dot{ width:4px; height:4px; border-radius:50%; background:var(--text-dim); }
+
+  /* SPECS HUD */
+  .specs{
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    margin:56px 0;
+    padding:32px 0;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+  }
+  .spec-item{ text-align:center; }
+  .spec-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:26px;
+    font-weight:500;
+    color:var(--accent);
+    display:block;
+    margin-bottom:6px;
+  }
+  .spec-label{
+    font-size:11px;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+
+  /* FEATURES */
+  .features{
+    margin-bottom:56px;
+  }
+  .feature-row{
+    display:flex;
+    gap:18px;
+    padding:20px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .feature-row:last-child{ border-bottom:none; }
+  .feature-tag{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--accent-dim);
+    min-width:64px;
+    padding-top:2px;
+  }
+  .feature-text{
+    font-size:15px;
+    color:var(--text);
+    line-height:1.5;
+  }
+  .feature-text b{ color:var(--accent); font-weight:600; }
+
+  /* INSTALL STEPS */
+  .install{
+    margin-bottom:64px;
+  }
+  .install-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    color:var(--text-dim);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    margin-bottom:20px;
+  }
+  .step{
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    margin-bottom:16px;
+  }
+  .step-num{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--accent);
+    border:1px solid var(--accent-dim);
+    width:24px;height:24px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .step-text{
+    font-size:14px;
+    color:var(--text-dim);
+    line-height:1.6;
+    padding-top:2px;
+  }
+
+  footer{
+    border-top:1px solid var(--line);
+    padding:28px 0 40px;
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--text-dim);
+  }
+  footer a{ color:var(--text-dim); text-decoration:none; border-bottom:1px solid var(--line); }
+  footer a:hover{ color:var(--accent); border-color:var(--accent); }
+
+  @keyframes fadeUp{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+
+  @media (max-width:480px){
+    .specs{ grid-template-columns:repeat(3,1fr); gap:12px; padding:24px 0; }
+    .spec-num{ font-size:20px; }
+    .btn-download{ width:100%; justify-content:center; padding:16px 24px; font-size:16px; }
+    .meta-row{ flex-wrap:wrap; gap:10px 16px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <nav>
+    <div class="logo"><span class="logo-dot"></span>GymBRO</div>
+  </nav>
+
+  <div class="hero">
+    <div class="eyebrow">● Pose estimation · Real-time feedback</div>
+    <h1>Fix your form<br>before it <span>fixes you.</span></h1>
+    <p class="sub">GymBRO watches 33 body landmarks through your phone's camera and corrects your squats, pushups, and lunges — live, no trainer required.</p>
+
+    <div class="pose-stage">
+      <svg viewBox="0 0 240 280" xmlns="http://www.w3.org/2000/svg">
+        <!-- torso -->
+        <line class="bone" x1="120" y1="70" x2="120" y2="160"/>
+        <!-- head -->
+        <circle class="bone" cx="120" cy="48" r="16"/>
+        <!-- shoulders -->
+        <line class="bone" x1="120" y1="78" x2="78" y2="92"/>
+        <line class="bone" x1="120" y1="78" x2="162" y2="92"/>
+        <!-- left arm bent (bicep curl angle) -->
+        <line class="bone" x1="78" y1="92" x2="66" y2="130"/>
+        <line class="bone" x1="66" y1="130" x2="84" y2="158"/>
+        <!-- right arm -->
+        <line class="bone" x1="162" y1="92" x2="174" y2="130"/>
+        <line class="bone" x1="174" y1="130" x2="158" y2="160"/>
+        <!-- hips -->
+        <line class="bone" x1="120" y1="160" x2="96" y2="168"/>
+        <line class="bone" x1="120" y1="160" x2="144" y2="168"/>
+        <!-- left leg bent (squat angle) -->
+        <line class="bone" x1="96" y1="168" x2="90" y2="216"/>
+        <line class="bone" x1="90" y1="216" x2="104" y2="258"/>
+        <!-- right leg -->
+        <line class="bone" x1="144" y1="168" x2="150" y2="216"/>
+        <line class="bone" x1="150" y1="216" x2="136" y2="258"/>
+
+        <!-- joints -->
+        <circle class="joint" cx="120" cy="78" r="4"/>
+        <circle class="joint j2" cx="78" cy="92" r="4"/>
+        <circle class="joint j3" cx="66" cy="130" r="4"/>
+        <circle class="joint j4" cx="96" cy="168" r="4"/>
+        <circle class="joint j5" cx="90" cy="216" r="4"/>
+        <circle class="joint" cx="162" cy="92" r="4"/>
+        <circle class="joint j2" cx="174" cy="130" r="4"/>
+        <circle class="joint j3" cx="144" cy="168" r="4"/>
+        <circle class="joint j4" cx="150" cy="216" r="4"/>
+
+        <!-- angle arc at left knee -->
+        <path class="angle-arc" d="M 78 200 A 22 22 0 0 1 100 210"/>
+        <text class="angle-label" x="62" y="200">92°</text>
+
+        <!-- angle arc at left elbow -->
+        <path class="angle-arc" d="M 60 110 A 16 16 0 0 1 76 120"/>
+        <text class="angle-label" x="44" y="108">110°</text>
+      </svg>
+    </div>
+
+    <div class="download-block">
+      <a class="btn-download" href="https://github.com/sushanthraiurwa/Gym-Bro/releases/download/v1.0.0/gym.apk" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
+        Download for Android
+      </a>
+      <div class="meta-row">
+        <span>v1.0 · APK</span>
+        <span class="meta-dot"></span>
+        <span>164 MB</span>
+        <span class="meta-dot"></span>
+        <span>Android 8.0+</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="specs">
+    <div class="spec-item">
+      <span class="spec-num">33+</span>
+      <span class="spec-label">Landmarks</span>
+    </div>
+    <div class="spec-item">
+      <span class="spec-num">On-device</span>
+      <span class="spec-label">Processing</span>
+    </div>
+    <div class="spec-item">
+      <span class="spec-num">Live</span>
+      <span class="spec-label">Feedback</span>
+    </div>
+  </div>
+
+  <div class="features">
+    <div class="feature-row">
+      <div class="feature-tag">TRACKING</div>
+      <div class="feature-text">Built on <b>MediaPipe Pose / Holistic</b> to track 33+ body landmarks frame-by-frame, entirely on-device.</div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-tag">ANALYSIS</div>
+      <div class="feature-text">Compares your live pose against ideal form for <b>squats, pushups, and lunges</b> — catching back angle, knee alignment, and incomplete reps as they happen.</div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-tag">TRACKING</div>
+      <div class="feature-text">Counts <b>reps, sets, and duration</b> automatically per exercise, no manual logging.</div>
+    </div>
+    <div class="feature-row">
+      <div class="feature-tag">RESULTS</div>
+      <div class="feature-text">After each session, see your pose accuracy and detected errors — all stored in <b>Firebase Firestore</b> so progress carries across sessions.</div>
+    </div>
+  </div>
+
+  <div class="install" style="margin-bottom:48px;">
+    <div class="install-title">Why this is harder than it looks</div>
+    <div class="step">
+      <div class="step-num">◐</div>
+      <div class="step-text"><b style="color:var(--text)">Occlusion</b> — limbs disappear behind the body mid-movement, and tracking has to hold up anyway.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">◑</div>
+      <div class="step-text"><b style="color:var(--text)">Domain gap</b> — models trained in clean lab conditions tend to break down in a real bedroom or gym.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">◒</div>
+      <div class="step-text"><b style="color:var(--text)">Personalization</b> — no two bodies move the same way, so rigid thresholds give false corrections.</div>
+    </div>
+  </div>
+
+  <div class="install">
+    <div class="install-title">Install on Android</div>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text">Tap <b style="color:var(--text)">Download for Android</b> above and let the APK finish downloading.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text">Open the downloaded file. If prompted, allow installs from this source in Settings.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text">Tap Install, then open GymBRO and grant camera access to start tracking.</div>
+    </div>
+  </div>
+
+  <footer>
+    Built with Flutter · MediaPipe · Firebase
+  </footer>
+
+</div>
+
+</body>
+</html>
