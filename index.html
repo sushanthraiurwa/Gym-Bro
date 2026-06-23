@@ -294,8 +294,8 @@
 
   <div class="hero">
     <div class="eyebrow">● Pose estimation · Real-time feedback</div>
-    <h1>Fix your form<br>before it <span>fixes you.</span></h1>
-    <p class="sub">GymBRO watches 32 body landmarks through your phone's camera and corrects your squats, pushups, and lunges — live, no trainer required.</p>
+    <h1>Train Smarter<br><span>Lift Safer.</span></h1>
+    <p class="sub">GymBRO watches 33 body landmarks through your phone's camera and provides real-time posture correction for Pushups, Shoulder Press, Barbell Curls, and Plank — no trainer required.</p>
 
     <div class="pose-stage">
       <svg viewBox="0 0 240 280" xmlns="http://www.w3.org/2000/svg">
@@ -335,23 +335,23 @@
 
         <!-- angle arc at left knee -->
         <path class="angle-arc" d="M 78 200 A 22 22 0 0 1 100 210"/>
-        <text class="angle-label" x="62" y="200">92°</text>
+        <text class="angle-label" x="62" y="200">125°</text>
 
         <!-- angle arc at left elbow -->
         <path class="angle-arc" d="M 60 110 A 16 16 0 0 1 76 120"/>
-        <text class="angle-label" x="44" y="108">110°</text>
+        <text class="angle-label" x="44" y="108">170°</text>
       </svg>
     </div>
 
     <div class="download-block">
-      <a class="btn-download" href="https://github.com/sushanthraiurwa/Gym-Bro/releases/download/v1.0.0/gymbro.apk" download>
+      <a class="btn-download" href="https://github.com/sushanthraiurwa/Gym-Bro/releases/download/v1.1.0/app-release.apk" download>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 21h14"/></svg>
         Download for Android
       </a>
       <div class="meta-row">
-        <span>v1.0 · APK</span>
+        <span>v1.1.0 APK</span>
         <span class="meta-dot"></span>
-        <span>164 MB</span>
+        <span>73 MB</span>
         <span class="meta-dot"></span>
         <span>Android 8.0+</span>
       </div>
@@ -360,37 +360,52 @@
 
   <div class="specs">
     <div class="spec-item">
-      <span class="spec-num">32</span>
-      <span class="spec-label">Landmarks</span>
+      <span class="spec-num">33</span>
+      <span class="spec-label">Body Landmarks</span>
     </div>
     <div class="spec-item">
-      <span class="spec-num">On-device</span>
-      <span class="spec-label">Processing</span>
+      <span class="spec-num">4</span>
+      <span class="spec-label">Supported Exercise</span>
     </div>
     <div class="spec-item">
-      <span class="spec-num">Live</span>
-      <span class="spec-label">Feedback</span>
+      <span class="spec-num">Real-Time</span>
+      <span class="spec-label">Posture Feedback</span>
     </div>
   </div>
 
-  <div class="features">
-    <div class="feature-row">
-      <div class="feature-tag">TRACKING</div>
-      <div class="feature-text">Built on <b>MediaPipe Pose / Holistic</b> to track 32 body landmarks frame-by-frame, entirely on-device.</div>
-    </div>
-    <div class="feature-row">
-      <div class="feature-tag">ANALYSIS</div>
-      <div class="feature-text">Compares your live pose against ideal form for <b>squats, pushups, and lunges</b> — catching back angle, knee alignment, and incomplete reps as they happen.</div>
-    </div>
-    <div class="feature-row">
-      <div class="feature-tag">TRACKING</div>
-      <div class="feature-text">Counts <b>reps, sets, and duration</b> automatically per exercise, no manual logging.</div>
-    </div>
-    <div class="feature-row">
-      <div class="feature-tag">RESULTS</div>
-      <div class="feature-text">After each session, see your pose accuracy and detected errors — all stored in <b>Firebase Firestore</b> so progress carries across sessions.</div>
-    </div>
+  <div class="feature-row">
+  <div class="feature-tag">TRACKING</div>
+  <div class="feature-text">
+    Built on <b>MediaPipe Pose</b> to track 33 body landmarks in real-time,
+    entirely on-device with low latency posture detection.
   </div>
+</div>
+
+<div class="feature-row">
+  <div class="feature-tag">ANALYSIS</div>
+  <div class="feature-text">
+    Analyzes exercise form for <b>Pushups, Shoulder Press, Barbell Curls, and Plank</b>
+    by calculating joint angles and body alignment to detect incorrect posture,
+    incomplete repetitions, and movement inconsistencies.
+  </div>
+</div>
+
+<div class="feature-row">
+  <div class="feature-tag">TRACKING</div>
+  <div class="feature-text">
+    Automatically tracks <b>repetitions, sets, workout duration, and hold time</b>
+    without requiring manual input from the user.
+  </div>
+</div>
+
+<div class="feature-row">
+  <div class="feature-tag">RESULTS</div>
+  <div class="feature-text">
+    Generates detailed workout analytics including <b>form accuracy, detected posture
+    mistakes, completed reps, and plank hold duration</b>. All workout history is
+    securely stored in <b>Firebase Firestore</b> for progress tracking.
+  </div>
+</div>
 
   <div class="install" style="margin-bottom:48px;">
     <div class="install-title">Why this is harder than it looks</div>
@@ -425,7 +440,7 @@
   </div>
 
   <footer>
-    Built with Flutter · MediaPipe · Firebase
+    GymBRO © 2026 • AI-Powered Fitness Form Analysis Built with Flutter · MediaPipe Pose · Firebase Firestore
   </footer>
 
 </div>
